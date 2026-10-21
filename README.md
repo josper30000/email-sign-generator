@@ -4,6 +4,8 @@ Aplicación web en Flask para crear una firma de correo corporativa como imagen.
 
 La aplicación no requiere base de datos ni guarda las firmas generadas: construye la imagen en memoria, la muestra en la respuesta y permite descargarla desde el navegador.
 
+![alt image](/images/Firma.png)
+
 ## Características
 
 - Formulario en español para los datos de contacto profesionales.
@@ -105,6 +107,8 @@ Los logos disponibles deben tener extensión `.jpg`, `.jpeg`, `.png`, `.gif` o `
 
 La firma se compone siempre sobre fondo blanco y mide 500 × 200 píxeles. Cuando hay logo, aparece a la derecha de una línea vertical gris; sin logo, el texto ocupa el ancho disponible. Para evitar que el contenido se corte, conviene usar textos breves, especialmente en el nombre, el cargo y el departamento.
 
+![alt image](/images/Firma-Generada.png)
+
 ## Estructura del proyecto
 
 ```text
@@ -153,45 +157,6 @@ Los ajustes de composición están centralizados en `signature_generator.py`:
 
 Tras cambiar esos valores, genera una firma de ejemplo para comprobar que el contenido cabe bien y que mantiene una apariencia consistente en el cliente de correo objetivo.
 
-## Detalle técnico
-
-### Rutas HTTP
-
-| Método y ruta | Responsabilidad |
-| --- | --- |
-| `GET /` | Renderiza `index.html` con la lista de logos y el mapa de URL. |
-| `POST /generate` | Lee los datos, verifica el nombre de archivo del logo, genera la imagen y renderiza `result.html`. |
-
-`app.py` usa `Path(...).name` antes de acceder al logo seleccionado, de modo que solo se utiliza el nombre de archivo dentro de `empresas/` y se evita recorrer directorios mediante el valor enviado en el formulario.
-
-La función pública de generación es:
-
-```python
-generate_signature(data, photo_bytes=None)
-# devuelve: (frames, durations_ms, is_animated)
-```
-
-`frames` contiene una imagen Pillow por fotograma; `durations_ms` conserva la duración de los fotogramas del logo cuando aplica; `is_animated` decide si la respuesta se serializa como PNG o GIF.
-
-## Desarrollo y despliegue
-
-No hay una suite de pruebas automatizada incluida. Para una comprobación manual, inicia el servidor, genera una firma con y sin empresa y confirma que la descarga y la vista previa corresponden al formato esperado.
-
-`python3 app.py` activa `debug=True`, por lo que es adecuado únicamente para desarrollo. Para producción, ejecuta la aplicación con un servidor WSGI y desactiva el modo de depuración. Por ejemplo, tras instalar Gunicorn como dependencia de despliegue:
-
-```bash
-gunicorn --bind 0.0.0.0:5000 app:app
-```
-
-La configuración de proxy inverso, TLS, registros y supervisión no forma parte de este repositorio y debe proporcionarla el entorno de despliegue.
-
-## Limitaciones actuales
-
-- No hay autenticación, cuentas de usuario ni historial de firmas.
-- No se admiten logos personalizados desde el formulario; hay que añadirlos en `empresas/`.
-- Los campos se rasterizan en una imagen y no producen enlaces clicables ni texto seleccionable.
-- El diseño está pensado para datos cortos y un logo corporativo compacto.
-- La validación de campos en el navegador es básica; los datos deben revisarse antes de compartir la firma.
 
 ## Licencia
 

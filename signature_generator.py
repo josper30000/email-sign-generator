@@ -18,7 +18,6 @@ from typing import Optional
 from PIL import Image, ImageDraw, ImageFont, ImageSequence
 
 # Rutas de fuentes en orden de preferencia (se usa la primera que exista)
-# Si ninguna está disponible, Pillow cae en su fuente bitmap interna
 _BOLD_FONTS = [
     "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
     "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
@@ -58,8 +57,6 @@ def _load_font(paths: list[str], size: int) -> ImageFont.FreeTypeFont:
     except (OSError, subprocess.SubprocessError):
         pass
 
-    # Pillow's scalable built-in font keeps the requested size and supports
-    # accented Spanish characters even when no system fonts are installed.
     return ImageFont.load_default(size=size)
 
 
