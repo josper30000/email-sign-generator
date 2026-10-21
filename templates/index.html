@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Generador de Firma de Email</title>
+  <!-- Bootstrap 5 desde CDN: proporciona grid, formularios y botones -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="bg-light">
+
+<div class="container py-5" style="max-width: 860px;">
+
+  <!-- Cabecera -->
+  <div class="text-center mb-4">
+    <h1 class="fw-bold" style="color:#2a2a2a;">Generador de Firma de Email</h1>
+    <p class="text-muted">Rellena los datos y descarga tu firma profesional</p>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body p-4">
+      <!-- enctype necesario para poder enviar archivos (aunque ahora no se suben manualmente) -->
+      <form action="/generate" method="post" enctype="multipart/form-data">
+
+        <div class="row g-3">
+
+          <!-- Selector de empresa: determina el logo y la URL del sitio web -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Empresa</label>
+            <select name="empresa" class="form-select">
+              <option value="">— Sin imagen —</option>
+              <!-- Las opciones se generan dinámicamente leyendo la carpeta /empresas -->
+              {% for nombre, archivo in empresas %}
+              <option value="{{ archivo }}">{{ nombre }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Nombre completo del trabajador -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">
+              Nombre completo <span class="text-danger">*</span>
+            </label>
+            <input type="text" name="name" class="form-control"
+                   placeholder="Ej: Sergio Lopez Esteban" required>
+          </div>
+
+          <!-- Cargo profesional -->
+          <div class="col-md-8">
+            <label class="form-label fw-semibold">Cargo</label>
+            <input type="text" name="cargo" class="form-control"
+                   placeholder="Ej: Responsable de Sistemas y Ciberseguridad">
+          </div>
+
+          <!-- Título o departamento -->
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Departamento</label>
+            <input type="text" name="departamento" class="form-control"
+                   placeholder="Ej: IT">
+          </div>
+
+          <!-- Sede u oficina donde trabaja el empleado -->
+          <div class="col-12">
+            <label class="form-label fw-semibold">Sede</label>
+            <input type="text" name="sede" class="form-control"
+                   placeholder="Ej: Madrid | Valencia | Barcelona">
+          </div>
+
+          <!-- Teléfono y extensión en la misma fila -->
+          <div class="col-md-5">
+            <label class="form-label fw-semibold">Teléfono</label>
+            <input type="tel" name="phone" class="form-control"
+                   placeholder="Ej: (+34) 618 786 007">
+          </div>
+
+          <div class="col-md-2">
+            <label class="form-label fw-semibold">Extensión</label>
+            <input type="text" name="extension" class="form-control"
+                   placeholder="Ej: 101">
+          </div>
+
+          <!-- Columna vacía para mantener el correo en la siguiente fila -->
+          <div class="col-md-5"></div>
+
+          <!-- Correo electrónico (fila propia) -->
+          <div class="col-md-7">
+            <label class="form-label fw-semibold">Correo electrónico</label>
+            <input type="email" name="email" class="form-control"
+                   placeholder="Ej: sergio@empresa.es">
+          </div>
+
+          <!-- Sitio web: se rellena automáticamente al elegir empresa -->
+          <div class="col-12">
+            <label class="form-label fw-semibold">Sitio web</label>
+            <input type="text" name="website" class="form-control"
+                   placeholder="Ej: empresa.es">
+          </div>
+
+        </div><!-- /row -->
+
+        <div class="text-center mt-4">
+          <button type="submit" class="btn btn-dark btn-lg px-5 fw-semibold">
+            Generar firma &rarr;
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // empresa_urls viene del servidor como JSON:
+  // { "grupoxtra": "https://grupoxtra.es/", "clickrent": "https://clickrent.es/", ... }
+  const empresaUrls  = {{ empresa_urls | safe }};
+  const empresaSel   = document.querySelector('[name="empresa"]');
+  const websiteInput = document.querySelector('[name="website"]');
+
+  /**
+   * Al cambiar la empresa seleccionada:
+   * - Si tiene URL configurada → rellena el campo Sitio web y lo bloquea.
+   * - Si no tiene URL (o se selecciona "Sin imagen") → deja el campo editable.
+   */
+  function applyEmpresaUrl() {
+    // El texto de la opción seleccionada coincide con el nombre en empresas.json
+    const stem = (empresaSel.options[empresaSel.selectedIndex]?.text || '').toLowerCase().trim();
+    if (empresaUrls[stem]) {
+      websiteInput.value    = empresaUrls[stem];
+      websiteInput.readOnly = true;
+      websiteInput.classList.add('bg-light'); // aspecto visual de campo bloqueado
+    } else {
+      websiteInput.value    = '';
+      websiteInput.readOnly = false;
+      websiteInput.classList.remove('bg-light');
+    }
+  }
+
+  empresaSel.addEventListener('change', applyEmpresaUrl);
+  applyEmpresaUrl(); // aplicar al cargar la página por si hay valor preseleccionado
+</script>
+</body>
+</html>

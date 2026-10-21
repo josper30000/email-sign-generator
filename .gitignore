@@ -1,0 +1,38 @@
+# Entorno virtual y variables locales
+venv/
+.venv/
+env/
+.env
+.env.*
+!.env.example
+
+# Caché y archivos generados por Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Configuración local o credenciales
+.aws/
+.codex/
+.agents/
+.idea/
+.vscode/
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+Desktop.ini
+*:Zone.Identifier
+
+# Archivos temporales y paquetes locales
+*.log
+*.tmp
+*.bak
+.zip
+*.zip
+build/
+dist/
+*.egg-info/
+
+# Archivo de Claude
+CLAUDE.md
